@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="sample" tests="2" failures="0" errors="0" skipped="0" time="0.12">
+  <testcase classname="workflow" name="test_artifacts_exist" time="0.05" />
+  <testcase classname="workflow" name="test_status_gate" time="0.07" />
+</testsuite>

@@ -1,0 +1,15 @@
+{
+  "run_id": "sample__2026-01-29T12-00-00Z__abcdef0",
+  "timestamp_utc": "2026-01-29T12:00:00Z",
+  "git_sha": "abcdef0",
+  "branch": "example",
+  "author": "Example",
+  "command": "git diff --patch --stat",
+  "diff_path": "artifacts/metrics/diff/sample__2026-01-29T12-00-00Z__abcdef0.patch",
+  "files_path": "artifacts/metrics/files/sample__2026-01-29T12-00-00Z__abcdef0.txt",
+  "requirements_map": {
+    "FR-01": ["examples/sample-workflow/notes.md"]
+  },
+  "example_only": true,
+  "notes": "Illustrative metrics for the sample workflow."
+}
