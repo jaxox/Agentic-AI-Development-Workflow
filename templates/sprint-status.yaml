@@ -1,0 +1,28 @@
+sprint_id: 
+created_at: 
+status: planned
+goal: 
+capacity:
+  team: 
+  points: 
+story_statuses:
+  - TODO
+  - IN PROGRESS
+  - READY FOR REVIEW
+  - DONE
+epics:
+  - id: 
+    name: 
+stories:
+  - id: 
+    title: 
+    epic: 
+    status: TODO
+    owner: 
+    estimate: 
+    links:
+      - 
+risks:
+  - 
+open_questions:
+  - 

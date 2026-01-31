@@ -5,6 +5,18 @@
 - Owner:
 - Last updated:
 
+## Executive summary
+- 
+
+## Problem statement
+- 
+
+## User personas
+- 
+
+## Success metrics
+- 
+
 ## Functional requirements
 - FR-01:
 - FR-02:
@@ -13,21 +25,21 @@
 - NFR-01:
 - NFR-02:
 
-## User stories
-- US-01: Given / When / Then
-- US-02: Given / When / Then
-
-## MVP scope
-- 
-
-## Explicit exclusions
+## Risks and assumptions
 - 
 
 ## Dependencies
 - 
 
-## Open questions
-- 
+## Scope
+- In-scope:
+- Out-of-scope:
+
+## User stories (optional)
+- US-01: Given / When / Then
 
 ## Acceptance criteria
+- 
+
+## Open questions
 - 

@@ -5,39 +5,38 @@
 - Owner:
 - Last updated:
 
-## Overview
+## Architecture overview
 - 
 
-## Component boundaries
+## System architecture
 - 
 
-## Data flow
+## Data architecture
 - 
 
-## Tech stack decisions
-- Decision:
-- Rationale:
-
-## No-code zones
+## API architecture
 - 
 
-## Diagrams
+## Frontend architecture
+- 
 
-### Mermaid
-```
-flowchart LR
-  A[Input] --> B[Process]
-  B --> C[Output]
-```
+## Integration architecture
+- 
 
-### PlantUML
-```
-@startuml
-actor User
-User -> System : Input
-System --> User : Output
-@enduml
-```
+## Security architecture
+- 
+
+## Deployment architecture
+- 
+
+## Architecture decision records (ADRs)
+- ADR-01:
+
+## FR/NFR-specific guidance
+- 
+
+## Standards and conventions
+- 
 
 ## Risks
 - 

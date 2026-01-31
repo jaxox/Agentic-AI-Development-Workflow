@@ -5,6 +5,43 @@ root_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 src_dir="$root_dir/skills"
 codex_root="$root_dir/.codex/skills"
 agent_root="$root_dir/.agent/skills"
+global_root="${HOME}/.gemini/antigravity/global_skills"
+
+validate_codex=1
+validate_agent=0
+validate_global=1
+
+usage() {
+  cat <<'USAGE'
+Usage: validate-skills.sh [--codex] [--agent] [--global] [--help]
+
+By default, validates Codex and global Antigravity skills.
+  --codex  Validate Codex skills (.codex/skills)
+  --agent  Validate project Antigravity skills (.agent/skills)
+  --global Validate global Antigravity skills (~/.gemini/antigravity/global_skills)
+  --help   Show this help
+USAGE
+}
+
+if [ $# -gt 0 ]; then
+  validate_codex=0
+  validate_agent=0
+  validate_global=0
+  for arg in "$@"; do
+    case "$arg" in
+      --codex) validate_codex=1 ;;
+      --agent) validate_agent=1 ;;
+      --global) validate_global=1 ;;
+      --help) usage; exit 0 ;;
+      *) echo "Unknown option: $arg" >&2; usage; exit 1 ;;
+    esac
+  done
+  if [ "$validate_codex" -eq 0 ] && [ "$validate_agent" -eq 0 ] && [ "$validate_global" -eq 0 ]; then
+    echo "No targets selected." >&2
+    usage
+    exit 1
+  fi
+fi
 
 if [ ! -d "$src_dir" ]; then
   echo "Missing skills directory: $src_dir" >&2
@@ -95,28 +132,47 @@ for src in "$src_dir"/*.md; do
 
   codex_file="$codex_root/$name/SKILL.md"
   agent_file="$agent_root/$name/SKILL.md"
+  global_file="$global_root/$name/SKILL.md"
 
-  if [ ! -f "$codex_file" ]; then
-    echo "ERROR: Missing Codex skill $codex_file" >&2
-    fail=1
-  else
-    if ! check_skill_file "$codex_file" "$name" "yes"; then
+  if [ "$validate_codex" -eq 1 ]; then
+    if [ ! -f "$codex_file" ]; then
+      echo "ERROR: Missing Codex skill $codex_file" >&2
       fail=1
-    fi
-    if ! compare_body "$codex_file" "$src"; then
-      fail=1
+    else
+      if ! check_skill_file "$codex_file" "$name" "yes"; then
+        fail=1
+      fi
+      if ! compare_body "$codex_file" "$src"; then
+        fail=1
+      fi
     fi
   fi
 
-  if [ ! -f "$agent_file" ]; then
-    echo "ERROR: Missing Antigravity skill $agent_file" >&2
-    fail=1
-  else
-    if ! check_skill_file "$agent_file" "$name" "no"; then
+  if [ "$validate_agent" -eq 1 ]; then
+    if [ ! -f "$agent_file" ]; then
+      echo "ERROR: Missing Antigravity skill $agent_file" >&2
       fail=1
+    else
+      if ! check_skill_file "$agent_file" "$name" "no"; then
+        fail=1
+      fi
+      if ! compare_body "$agent_file" "$src"; then
+        fail=1
+      fi
     fi
-    if ! compare_body "$agent_file" "$src"; then
+  fi
+
+  if [ "$validate_global" -eq 1 ]; then
+    if [ ! -f "$global_file" ]; then
+      echo "ERROR: Missing global Antigravity skill $global_file" >&2
       fail=1
+    else
+      if ! check_skill_file "$global_file" "$name" "no"; then
+        fail=1
+      fi
+      if ! compare_body "$global_file" "$src"; then
+        fail=1
+      fi
     fi
   fi
 
