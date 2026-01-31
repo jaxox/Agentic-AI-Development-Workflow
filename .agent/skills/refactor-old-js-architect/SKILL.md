@@ -38,7 +38,7 @@ To modernize legacy JavaScript codebases by effectively migrating ES5 to ES6+, d
 - **Scope Analysis**: Identify variable hoisting and closure dependencies.
 
 ### 2. Transformation
-- **Automated Codemods**: Use `javascript-refactoring-architect/scripts/run_codemod.sh` (wraps `jscodeshift` or similar) for deterministic ES5->ES6 updates.
+- **Automated Codemods**: Use `refactor-old-js-architect/scripts/run_codemod.sh` (wraps `jscodeshift` or similar) for deterministic ES5->ES6 updates.
 - **Manual Pattern Application**:
     - **Monoliths**: Extract logic blocks into standalone functions.
     - **Async**: `util.promisify` legacy callbacks, then await them.
