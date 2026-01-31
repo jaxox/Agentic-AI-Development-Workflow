@@ -1,7 +1,0 @@
-$ pytest tests/ --junitxml=artifacts/test-logs/junit/sample__2026-01-29T12-00-00Z__abcdef0.xml
-============================= test session starts =============================
-collected 2 items
-
-tests/test_workflow.py ..                                               [100%]
-
-============================== 2 passed in 0.12s ==============================
