@@ -1,8 +1,3 @@
----
-name: refactor-old-js-architect
-description: "To modernize legacy JavaScript codebases by effectively migrating ES5 to ES6+, decomposing monolithic functions, and implementing async/await patterns while ensuring zero regressions."
----
-
 
 # Skill: JavaScript Refactoring Architect
 
