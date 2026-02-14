@@ -7,6 +7,7 @@ codex_root="$root_dir/.codex/skills"
 codex_global_root="${HOME}/.codex/skills"
 agent_root="$root_dir/.agent/skills"
 global_root="${HOME}/.gemini/antigravity/global_skills"
+master_root="${HOME}/.agents/skills"
 
 sync_codex=1
 sync_codex_global=1
@@ -18,6 +19,8 @@ usage() {
 Usage: sync-skills.sh [--codex] [--codex-global] [--agent] [--global] [--help]
 
 By default, syncs project and global Codex skills plus global Antigravity skills.
+This script generates the canonical skill files in ~/.agents/skills and symlinks them to the targets.
+
   --codex         Sync only project Codex skills (.codex/skills)
   --codex-global  Sync only global Codex skills (~/.codex/skills)
   --agent         Sync only project Antigravity skills (.agent/skills)
@@ -70,24 +73,20 @@ if [ -d "$agent_root" ]; then
   done
 fi
 
-if [ "$sync_codex" -eq 1 ]; then
-  mkdir -p "$codex_root"
-fi
-if [ "$sync_codex_global" -eq 1 ]; then
-  mkdir -p "$codex_global_root"
-fi
-if [ "$sync_agent" -eq 1 ]; then
-  mkdir -p "$agent_root"
-fi
-if [ "$sync_global" -eq 1 ]; then
-  mkdir -p "$global_root"
-fi
+# Ensure master root exists
+mkdir -p "$master_root"
 
 for src in "$src_dir"/*.md; do
   [ -e "$src" ] || continue
 
   base="$(basename "$src" .md)"
   name="${base//_/-}"
+  
+  # Master file locations
+  master_dir="$master_root/$name"
+  master_file="$master_dir/SKILL.md"
+  
+  # Target file locations
   codex_dir="$codex_root/$name"
   codex_file="$codex_dir/SKILL.md"
   codex_global_dir="$codex_global_root/$name"
@@ -97,73 +96,51 @@ for src in "$src_dir"/*.md; do
   global_dir="$global_root/$name"
   global_file="$global_dir/SKILL.md"
 
-  if [ "$sync_codex" -eq 1 ]; then
-    mkdir -p "$codex_dir"
-  fi
-  if [ "$sync_codex_global" -eq 1 ]; then
-    mkdir -p "$codex_global_dir"
-  fi
-  if [ "$sync_agent" -eq 1 ]; then
-    mkdir -p "$agent_dir"
-  fi
-  if [ "$sync_global" -eq 1 ]; then
-    mkdir -p "$global_dir"
-  fi
-
+  # Always regenerate master file
+  mkdir -p "$master_dir"
+  
   desc_raw="$(awk 'BEGIN{found=0} /^##[[:space:]]+Purpose/{found=1;next} found{if($0 ~ /^[[:space:]]*$/) next; print; exit}' "$src")"
   if [ -z "$desc_raw" ]; then
     desc_raw="Skill $name"
   fi
   desc_escaped="$(printf '%s' "$desc_raw" | sed 's/"/\\"/g')"
 
+  {
+    echo "---"
+    echo "name: $name"
+    echo "description: \"$desc_escaped\""
+    echo "metadata:"
+    echo "  short-description: \"$desc_escaped\""
+    echo "---"
+    echo
+    cat "$src"
+  } > "$master_file"
+  echo "Wrote master: $master_file"
+
+  # Link Logic Helper
+  link_skill() {
+    local target_dir="$1"
+    local target_file="$2"
+    
+    mkdir -p "$target_dir"
+    # Remove existing file or link if it exists
+    rm -f "$target_file"
+    # Create symlink
+    ln -s "$master_file" "$target_file"
+    echo "Symlinked $target_file -> $master_file"
+  }
+
   if [ "$sync_codex" -eq 1 ]; then
-    {
-      echo "---"
-      echo "name: $name"
-      echo "description: \"$desc_escaped\""
-      echo "metadata:"
-      echo "  short-description: \"$desc_escaped\""
-      echo "---"
-      echo
-      cat "$src"
-    } > "$codex_file"
-    echo "Wrote $codex_file"
+    link_skill "$codex_dir" "$codex_file"
   fi
   if [ "$sync_codex_global" -eq 1 ]; then
-    {
-      echo "---"
-      echo "name: $name"
-      echo "description: \"$desc_escaped\""
-      echo "metadata:"
-      echo "  short-description: \"$desc_escaped\""
-      echo "---"
-      echo
-      cat "$src"
-    } > "$codex_global_file"
-    echo "Wrote $codex_global_file"
+    link_skill "$codex_global_dir" "$codex_global_file"
   fi
-
   if [ "$sync_agent" -eq 1 ]; then
-    {
-      echo "---"
-      echo "name: $name"
-      echo "description: \"$desc_escaped\""
-      echo "---"
-      echo
-      cat "$src"
-    } > "$agent_file"
-    echo "Wrote $agent_file"
+    link_skill "$agent_dir" "$agent_file"
+  fi
+  if [ "$sync_global" -eq 1 ]; then
+    link_skill "$global_dir" "$global_file"
   fi
 
-  if [ "$sync_global" -eq 1 ]; then
-    {
-      echo "---"
-      echo "name: $name"
-      echo "description: \"$desc_escaped\""
-      echo "---"
-      echo
-      cat "$src"
-    } > "$global_file"
-    echo "Wrote $global_file"
-  fi
 done

@@ -1,6 +1,8 @@
 ---
 name: uncommitted-code-review
 description: "Perform a **strict, deterministic code review** of **uncommitted Git changes only** (staged and unstaged)."
+metadata:
+  short-description: "Perform a **strict, deterministic code review** of **uncommitted Git changes only** (staged and unstaged)."
 ---
 
 # Skill: `uncommitted_code_review`

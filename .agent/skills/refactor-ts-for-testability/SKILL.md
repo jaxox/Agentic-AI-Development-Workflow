@@ -1,6 +1,8 @@
 ---
 name: refactor-ts-for-testability
 description: "Refactor AI-generated JS/TS into reusable, testable modules without changing behavior; isolate side effects and add tests."
+metadata:
+  short-description: "Refactor AI-generated JS/TS into reusable, testable modules without changing behavior; isolate side effects and add tests."
 ---
 
 ## Purpose

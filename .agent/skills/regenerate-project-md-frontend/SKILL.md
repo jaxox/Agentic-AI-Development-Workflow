@@ -1,10 +1,8 @@
 ---
 name: regenerate-project-md-frontend
-description: Analyze a frontend repository and (re)generate PROJECT.frontend.md as authoritative working memory for future AI agents.
+description: "Create or update `PROJECT.frontend.md` so future AI agents understand the frontend without re-analyzing the entire repo."
 metadata:
-  short-description: Auto-regenerate frontend PROJECT.md
-  tags: [frontend, docs, architecture]
-  version: "1.0"
+  short-description: "Create or update `PROJECT.frontend.md` so future AI agents understand the frontend without re-analyzing the entire repo."
 ---
 
 # regenerate-project-md-frontend

@@ -50,6 +50,7 @@ scripts/validate-skills.sh
 - Skill contract: `docs/specs/skill-contract.md`
 - Test logging: `docs/specs/test-logging.md`
 - Metrics/diff: `docs/specs/metrics.md`
+- Shared Java standards: `docs/dev-guidelines/java-coding-standards.md`
 
 ## Workflow overview
 1. Entry: `context/task.md`

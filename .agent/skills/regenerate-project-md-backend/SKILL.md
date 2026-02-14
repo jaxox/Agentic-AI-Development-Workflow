@@ -1,10 +1,8 @@
 ---
 name: regenerate-project-md-backend
-description: Analyze a backend repository and (re)generate PROJECT.backend.md as authoritative working memory for future AI agents.
+description: "Create or update `PROJECT.backend.md` so future AI agents understand backend architecture, domain boundaries, and constraints without re-reading the codebase."
 metadata:
-  short-description: Auto-regenerate backend PROJECT.md
-  tags: [backend, docs, architecture, anti-gravity]
-  version: "1.0"
+  short-description: "Create or update `PROJECT.backend.md` so future AI agents understand backend architecture, domain boundaries, and constraints without re-reading the codebase."
 ---
 
 # regenerate-project-md-backend
