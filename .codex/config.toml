@@ -1,4 +1,0 @@
-# Team config for this repo. Keep values minimal and safe.
-
-[mcp_servers.openaiDeveloperDocs]
-url = "https://developers.openai.com/mcp"
