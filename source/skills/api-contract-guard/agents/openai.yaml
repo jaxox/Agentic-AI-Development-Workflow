@@ -1,0 +1,4 @@
+interface:
+  display_name: "API Contract Guard"
+  short_description: "Keep DTOs and API specs synchronized"
+  default_prompt: "Check this API change for OpenAPI/DTO/schema drift, classify compatibility impact, and list required contract tests before merge."

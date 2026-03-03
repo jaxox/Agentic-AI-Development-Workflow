@@ -1,0 +1,4 @@
+interface:
+  display_name: "Root-Cause Fix Enforcer"
+  short_description: "Enforce end-to-end root-cause fixes over quick patches"
+  default_prompt: "Apply AGENTS.md rules, trace end-to-end flow, and implement authoritative root-cause fixes without temporary state, fake data, or UI-only band-aids."

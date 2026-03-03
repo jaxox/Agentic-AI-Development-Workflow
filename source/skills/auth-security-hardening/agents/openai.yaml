@@ -1,0 +1,4 @@
+interface:
+  display_name: "Auth Security Hardening"
+  short_description: "Prevent auth/security regressions in backend changes"
+  default_prompt: "Review this auth-related backend change for CSRF/cookie/token/rate-limit/authorization risks and propose code and test hardening steps."

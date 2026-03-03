@@ -1,0 +1,4 @@
+interface:
+  display_name: "Reliability Triage"
+  short_description: "Catch idempotency, cache, stream, and observability risks"
+  default_prompt: "Analyze this backend change for reliability risks (idempotency, cache invalidation, stream reconnect/backpressure, instrumentation) and propose code plus test fixes."

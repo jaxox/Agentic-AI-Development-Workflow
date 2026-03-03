@@ -11,6 +11,7 @@ metadata:
 
 Perform a **strict, deterministic code review** of **uncommitted Git changes only** (staged and unstaged).
 The skill acts like a senior engineer blocking a release: it focuses on correctness, safety, performance, and test coverage — not style bikeshedding or speculative refactors.
+It must prioritize **root-cause, flow-level fixes** over band-aid patches.
 
 ---
 
@@ -29,6 +30,7 @@ The skill acts like a senior engineer blocking a release: it focuses on correctn
 * Repo-wide refactors
 * Formatting-only feedback
 * Speculative or "nice to have" redesigns
+* "Quick patch" guidance that does not address root cause
 
 If required context is missing, the skill may ask **at most one clarifying question** and must specify the exact file/lines needed.
 
@@ -55,7 +57,9 @@ If required context is missing, the skill may ask **at most one clarifying quest
      * file path
      * line range
      * why it matters
-     * a concrete fix (code snippet or patch)
+     * **root cause** — how the issue was introduced (e.g., refactor leftover, missing guard, wrong API)
+     * **concrete fix** — actionable code snippet, patch, or step-by-step remediation
+     * If the fix is non-trivial, show a before/after diff block
 
 5. **No hallucinations**
 
@@ -64,6 +68,56 @@ If required context is missing, the skill may ask **at most one clarifying quest
 6. **Assume production impact**
 
    * Review as if this code can ship to prod today.
+
+7. **Follow repo guardrails first (AGENTS.md / project rules)**
+
+   * Before finalizing findings, check applicable repo guardrails.
+   * If a diff violates those guardrails, this must be called out explicitly and prioritized.
+
+8. **No band-aid recommendations**
+
+   * Do not suggest UI-only or local-state-only patches when the root cause is in API contract, backend logic, persistence, or auth flow.
+   * Fixes must target the authoritative layer and include why that layer is the source of truth.
+
+9. **Trace the end-to-end flow before proposing fixes**
+
+   * For auth/legal/RSVP/security flows, validate request path, API contract, state propagation, routing, and persistence impacts.
+   * If an issue appears repeatedly, include a systemic fix that prevents recurrence (not just line edits).
+
+10. **Use invariant-first review for recurring issue families**
+
+    * For repeated findings in the same domain (auth/legal/RSVP/session/redirect), define explicit invariants the diff must satisfy.
+    * Evaluate whether each changed path satisfies the same invariant, not just the path that triggered the review.
+
+11. **Require sibling-path closure for P0/P1**
+
+    * For each P0/P1 finding, list all sibling entrypoints likely sharing the defect pattern.
+    * If closure cannot be proven from diff + tests, keep issue open at P1.
+
+12. **Report process gaps when loops recur**
+
+    * If the same class of issue recurs across multiple review cycles, include one process-level recommendation (guardrail check, invariant test, or workflow gate) to break the loop.
+
+13. **Emit stable finding IDs**
+
+    * Assign deterministic IDs per issue (for example `P1-1`, `P1-2`, `P2-1`).
+    * Reuse the same ID for the same unresolved issue across follow-up reviews when possible.
+    * This ID set is the closure contract for `root-cause-fix-enforcer`.
+
+14. **Verify closure against prior IDs when provided**
+
+    * If prior finding IDs are available in context, explicitly mark each as `closed` or `open`.
+    * Do not silently replace old findings with new wording.
+
+15. **Enforce AGENTS.md guarded-scope rules as review findings**
+
+    * If repo guardrails require backend sync/proof for a changed scope (for example RSVP/profile/auth persistence), missing backend evidence is a review issue, not an optional note.
+    * Mark such violations at least `P1` and keep merge verdict non-ready until resolved.
+
+16. **No partial-close merge optimism**
+
+    * If any `P0/P1` finding ID is still `open`, do not provide optimistic wording that implies near-merge readiness.
+    * Keep root-cause/entrypoint closure language explicit: which path is still unclosed and why.
 
 ---
 
@@ -112,12 +166,15 @@ The skill MUST evaluate all applicable items below:
 * Public API changes
 * Wire format changes
 * Backward compatibility
+* Error code parsing consistency (`errorCode` vs `error` or equivalent)
 
 ### Testing
 
 * Missing tests for new logic
 * Tests that no longer cover behavior
 * Flaky or brittle test patterns
+* Invariant-level tests missing for recurring issue families
+* Guardrail checks (when defined by repo rules) are missing from CI/local validation path
 
 ---
 
@@ -152,8 +209,9 @@ For each issue:
 * **File:** `path/to/file`
 * **Lines:** `start–end`
 * **Problem:** concise explanation
+* **Root cause:** how this was introduced
 * **Impact:** what can break
-* **Fix:** concrete code change
+* **Fix:** concrete code change (before/after diff when non-trivial)
 
 ### 3. P1 Issues
 
@@ -169,13 +227,44 @@ For each issue:
 * Files to modify
 * Commands to run (if applicable)
 
-### 6. Risk & Rollout Notes
+### 5.5 Findings Ledger
+
+* Table of finding IDs with status:
+  * `open` (still present)
+  * `closed` (verified fixed)
+* Include one-line closure evidence for each `closed` ID.
+
+### 6. Root-Cause Fix Plan
+
+* For each P0/P1 issue, include:
+  * authoritative layer to fix (backend/API/client/router/persistence)
+  * why quick patches are insufficient
+  * minimal durable remediation sequence
+
+### 7. Invariant Closure Table
+
+For each P0/P1 issue family, include:
+
+* invariant statement
+* in-scope sibling entrypoints
+* closure status per entrypoint (`closed` / `open`)
+* validation artifact (test/check/manual evidence)
+
+### 8. Recurrence Prevention
+
+* One concrete anti-loop action per recurring issue family:
+  * guardrail/static check to add
+  * invariant regression test to add
+  * workflow gate to enforce before merge
+
+### 9. Risk & Rollout Notes
 
 * Behavior changes
 * Migration or backfill needs
 * Rollout considerations
+* Guardrail/contract enforcement risks (for example backend-sync proof drift)
 
-### 7. Merge Readiness Verdict
+### 10. Merge Readiness Verdict
 
 One of:
 
@@ -190,9 +279,12 @@ One of:
 * Be direct and honest.
 * No praise padding.
 * No "looks good overall" unless there are truly no issues.
+* Never recommend "just patch this line" when there is an unresolved flow-level root cause.
 * If no issues are found, explicitly state:
 
   > "No P0–P2 issues found in the reviewed diff."
+* If issues are found but invariant closure cannot be proven, do not return "Ready to merge."
+* If prior finding IDs were provided, include explicit closure state for every ID before verdict.
 
 ---
 
