@@ -1,0 +1,4 @@
+interface:
+  display_name: "Dinkify iOS Safari User Stories Audit"
+  short_description: "Audit Dinkify stories on iPhone Safari"
+  default_prompt: "Use $dinkify-ios-safari-user-stories-audit to validate all critical Dinkify user stories on the iPhone Simulator."

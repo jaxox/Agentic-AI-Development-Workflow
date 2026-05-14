@@ -6,13 +6,14 @@ description: Enforce Java coding standards on uncommitted changes, summarize dif
 # Java Pre-Commit Review
 
 ## Overview
-Review uncommitted Java changes against the project's coding standards, summarize the diff, propose a commit message, and stage+commit only after explicit user approval.
+Review all uncommitted Java changes (staged + unstaged) against the project's coding standards, summarize the diff, propose a commit message, and stage+commit only after explicit user approval.
 
 ## Non-negotiable Constraints
-- **Do NOT modify any code**. This is review + commit only.
-- **Evaluate ONLY uncommitted changes** (git diff).
+- **Default: Do NOT modify any code**. This is review + commit only.
+- **Exception:** If and only if all detected violations are inline fully qualified class names (FQCN-only), auto-fix those FQCN usages by adding explicit imports and replacing inline type references. Then continue the workflow.
+- **Evaluate ONLY uncommitted changes** (staged + unstaged).
 - **Standards file is authoritative**. If conflicts exist, follow the standards file.
-- If any standards violations are found → **STOP** and output "FAIL" with exact violations.
+- If any standards violations are found (other than FQCN-only set) → **STOP** and output "FAIL" with exact violations.
 - **Never run `git add` or `git commit`** unless user replies with exactly: `PROCEED_TO_COMMIT`
 - If the diff is empty → STOP (nothing to commit).
 
@@ -36,14 +37,13 @@ Run these commands and capture outputs:
 
 #### Guardrails
 - If `git status --porcelain` is empty → output: "No uncommitted changes."
-- If `git diff --staged` is non-empty → output a warning:
-  "You already have staged changes; this workflow expects clean staging.
-   Either unstage or confirm you want to include them."
-  Then STOP unless user says they want to include staged changes.
+- If `git diff --staged` is non-empty → output an informational warning:
+  "Staged changes detected. Including staged + unstaged changes in this review."
+  Then CONTINUE.
 
 ### Phase 1 — Standards Compliance Gate (Blocking)
 
-Compare the **changed lines** in `git diff` against the Java Coding Standards file.
+Compare the **changed lines** in both `git diff` and `git diff --staged` against the Java Coding Standards file.
 
 #### Output format (strict)
 - Overall status: PASS | FAIL
@@ -56,6 +56,10 @@ Compare the **changed lines** in `git diff` against the Java Coding Standards fi
     - Minimal fix suggestion (do NOT apply)
 
 #### Gate behavior
+- If violations are **only** FQCN inline type usages:
+  - Auto-fix them (imports + simple type names), do not introduce behavior changes.
+  - Re-run Phase 0 and Phase 1 once.
+  - Continue to Phase 2 if clean.
 - If FAIL → STOP after listing violations.
 - If PASS → continue.
 

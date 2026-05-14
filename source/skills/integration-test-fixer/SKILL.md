@@ -86,6 +86,7 @@ Use:
 - Fixed timestamps
 - Known ordering
 - Guaranteed cleanup/reset
+- Isolated user/session identities for multi-actor flows
 
 No shared or leaked state allowed.
 
@@ -94,8 +95,17 @@ No shared or leaked state allowed.
 Replace sleeps with:
 - Condition-based waits
 - Poll-until-success with timeouts
+- Readiness gates tied to domain signals, not generic page-idle assumptions
 
 Use fake or controllable clocks where possible.
+
+### Step 4A - Handle multi-user and shared-state flows explicitly
+
+For collaborative flows:
+- Separate actor setup, actions, and assertions by user identity.
+- Assert on backend-confirmed or canonical-read state, not only immediate UI deltas.
+- Add at least one reload, refetch, reconnect, or second-session assertion before considering the test stable.
+- Verify different surfaces converge on the same post-mutation state.
 
 ### Step 5 - Validate Test Meaning
 
@@ -117,6 +127,7 @@ If it does not prove meaningful behavior, rewrite it.
 Run the test:
 - Alone
 - As part of the full suite
+- In the smallest relevant domain shard when the repo uses domain-aware runners
 
 Ensure ordering does not affect results.
 
@@ -146,6 +157,7 @@ Ensure ordering does not affect results.
 - Root cause
 - Where the fix was applied (production code, integration boundary, or test harness) and why
 - Determinism strategy
+- Multi-user/shared-state strategy when applicable
 - Why this fix is stable
 - Full-suite status, including pre-existing/unrelated failures that were fixed
 - Commands run and results
@@ -160,3 +172,14 @@ Ensure ordering does not affect results.
 - High confidence in CI results
 - Production behavior and quality are improved, not bypassed
 - All failing tests found during verification are resolved, regardless of original scope
+- For collaborative or persisted flows, refresh/refetch/reconnect assertions prove the fix survives read boundaries
+
+---
+
+## Special guidance for flaky E2E and integration suites
+
+When a failure appears only in full-suite or CI execution:
+- Distinguish infrastructure readiness failures from product defects before editing assertions.
+- Prefer domain-aware readiness checks, seeded fixtures, and explicit backend confirmations over longer waits.
+- If chat, notifications, counters, or shared state are involved, treat the canonical backend read as the final assertion surface.
+- If the same issue reappears across multiple tests, consolidate setup/helpers first instead of patching each spec independently.

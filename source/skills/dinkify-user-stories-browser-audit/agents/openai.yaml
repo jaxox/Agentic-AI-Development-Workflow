@@ -1,0 +1,4 @@
+interface:
+  display_name: "Dinkify User Stories Browser Audit"
+  short_description: "Manual browser audit for Dinkify stories"
+  default_prompt: "Use $dinkify-user-stories-browser-audit to test the Dinkify critical user stories checklist and produce a dated pass/fail checklist."

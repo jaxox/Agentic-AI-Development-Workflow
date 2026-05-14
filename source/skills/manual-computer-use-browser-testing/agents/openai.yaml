@@ -1,0 +1,4 @@
+interface:
+  display_name: "Manual Computer-Use Browser Testing"
+  short_description: "Manual Chrome UI story testing"
+  default_prompt: "Use $manual-computer-use-browser-testing to manually test the requested Chrome user stories with Computer Use, DevTools Network open, and a phone-sized viewport."

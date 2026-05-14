@@ -20,6 +20,8 @@ Prioritize correctness, determinism, and long-term maintainability over speed-on
 6. Never ship speculative or cosmetic-only fixes without flow verification.
 7. Use invariant-driven closure for recurring issues: define non-negotiable flow invariants before coding and verify all are satisfied before completion.
 8. If repository guardrails require backend-sync evidence for touched scope, treat that as mandatory implementation scope (backend changes and/or proof artifact updates in the same cycle).
+9. For shared or persisted state, require proof that a fresh backend read after mutation still shows the fix.
+10. When the defect touches RSVP, attendance, check-ins, chat/DMs, profile counters, or other collaborative state, inspect persistence, backend calculation, and API contract before changing UI state code.
 
 ## Hard Prohibitions
 
@@ -30,6 +32,9 @@ Prioritize correctness, determinism, and long-term maintainability over speed-on
 5. Do not stop at a single symptom if sibling paths share the same defect pattern.
 6. Do not mark work complete when any entrypoint in scope lacks the same durability guarantees as the primary fixed path.
 7. Do not claim completion when any incoming `P0/P1` finding ID remains open.
+8. Do not fix persisted or collaborative-state defects only in selectors, memoized UI models, optimistic reducers, or component state when the real defect is in persistence, backend calculation, authorization, or API contract.
+9. Do not treat optimistic UI as authoritative after refresh, reconnect, or refetch.
+10. Do not accept local counter math, fake success toasts, or client-only repair logic as closure for backend-authoritative defects.
 
 ## Anti-Loop Protocol (Mandatory for 2nd+ Iteration on Same Issue Family)
 
@@ -97,11 +102,15 @@ Finding IDs covered:
 - Capture expected behavior, current behavior, and exact failing paths.
 - Identify whether the bug is contract, state, routing, authorization, or rendering.
 - Declare invariants that must hold after fix.
+- For persisted or shared-state bugs, include one invariant about backend-authoritative post-refresh correctness.
+- Add one explicit authority statement: where the canonical value is computed, persisted, and re-read.
 
 2. Map the full flow and sibling entrypoints.
 - Start from user action and trace through route guards, service layer, API adapter, backend contract, and persistence.
 - Record where authoritative truth is set and where it is consumed.
 - Build entrypoint matrix for all sibling paths that can violate the same invariant.
+- Include read boundaries such as reload, refetch, reconnect, and second-session views when they can expose drift.
+- For counters or aggregate widgets, trace both the write path and the aggregate read path. Do not assume the visible number is backed by the same source as the mutation response.
 
 3. Select fix layer by precedence.
 - Contract/data integrity layer (preferred).
@@ -114,12 +123,14 @@ Finding IDs covered:
 - Patch all affected sibling paths discovered during trace.
 - Remove contradictory fallback logic that reintroduces drift.
 - Prefer shared helpers/contracts over duplicated ad-hoc logic.
+- If UI-only fallback behavior exists, either remove it or demote it to clearly non-authoritative pending UX state with guaranteed backend reconciliation.
 
 5. Harden tests.
 - Add regression tests for the original failure.
 - Add at least one adjacent-path test for the same root cause class.
 - Ensure cleanup in tests uses `finally` when global listeners/hooks are involved.
 - Add one invariant-level test/check that blocks recurrence.
+- For shared or persisted state, add a validation step that mutates then re-reads from backend authority via reload, refetch, reconnect, or separate session.
 
 6. Validate and report.
 - Run targeted tests first, then broader suite/build as needed.
@@ -127,6 +138,12 @@ Finding IDs covered:
 - Report root cause, changed files, and why the fix is durable.
 - Explicitly report invariant closure status for each entrypoint in scope.
 - Include findings ledger status (`open`/`closed`) for every input review ID.
+- Call out any remaining path that still depends on optimistic or local-only state.
+- For guarded collaborative-state fixes, include a short "proof of authority" note:
+  - mutation owner
+  - persistence owner
+  - canonical read owner
+  - reload/refetch proof
 
 ## Quality Gate Before Final Response
 

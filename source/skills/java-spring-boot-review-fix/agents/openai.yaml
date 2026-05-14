@@ -1,0 +1,4 @@
+interface:
+  display_name: "Java Spring Boot Review Fix"
+  short_description: "Review and fix Java Spring Boot diffs"
+  default_prompt: "Use $java-spring-boot-review-fix to review my uncommitted Java Spring Boot changes and fix substantive issues at the root cause."

@@ -9,11 +9,13 @@ description: Enforce frontend coding standards on uncommitted changes, run type-
 Review uncommitted frontend changes against project coding standards and UI rules, run automated quality gates (TypeScript, lint, unit tests, E2E), summarize the diff, propose a commit message, and stage+commit only after explicit user approval.
 
 ## Non-negotiable Constraints
-- **Do NOT modify any code**. This is review + commit only.
+- **Default mode: Do NOT modify any code**. This is review + commit.
+- **Exception (TypeScript-only auto-fix):** If Phase 1 passes and the **only** failing gate is TypeScript, apply a minimal targeted fix for those TypeScript errors, then rerun gates and continue.
 - **Evaluate ONLY uncommitted changes** (git diff).
 - **Standards files are authoritative**. If conflicts exist, follow the standards files.
 - If any standards violations OR automated gate failures are found → **STOP** and output "FAIL" with exact details.
 - **Never run `git add` or `git commit`** unless user replies with exactly: `PROCEED_TO_COMMIT`
+- Staged and unstaged changes are both included in review scope automatically.
 - If the diff is empty → STOP (nothing to commit).
 
 ## Workflow (mandatory)
@@ -35,10 +37,7 @@ Run these commands and capture outputs:
 
 #### Guardrails
 - If `git status --porcelain` is empty → output: "No uncommitted changes."
-- If `git diff --staged` is non-empty → output a warning:
-  "You already have staged changes; this workflow expects clean staging.
-   Either unstage or confirm you want to include them."
-  Then STOP unless user says they want to include staged changes.
+- If `git diff --staged` is non-empty → include staged changes automatically in the review and continue.
 
 ### Phase 1 — Standards Compliance Gate (Blocking)
 
@@ -97,6 +96,7 @@ Compare the **changed lines** in `git diff` against:
 ### Phase 2 — Automated Quality Gates (Blocking)
 
 Run the following automated checks sequentially. If any gate FAILS, report it and **STOP**.
+Exception: TypeScript gate may use the TypeScript-only auto-fix path in 2.1.
 
 #### 2.1 — TypeScript Type Check
 // turbo
@@ -105,6 +105,12 @@ npx tsc --noEmit 2>&1 | tail -30
 ```
 - **PASS criteria:** Exit code 0, no type errors.
 - **FAIL:** List all type errors with file paths and line numbers.
+- **TypeScript-only auto-fix path (mandatory when applicable):**
+  1. If Phase 1 passed and TypeScript is the only failing gate so far, apply a **minimal** fix for reported TS errors.
+  2. Keep fix scope tight: only files from TypeScript errors (or directly required types/contracts).
+  3. Rerun TypeScript gate.
+  4. If TypeScript passes, continue to 2.2.
+  5. If TypeScript still fails, output FAIL and STOP.
 
 #### 2.2 — Lint Check (if configured)
 // turbo
@@ -133,17 +139,38 @@ npx vitest run --reporter=verbose 2>&1 | tail -50
    - If **not running**, start it per the Backend Startup Protocol in `ag-rules.md` Section 9.
 3. Both must be reachable before proceeding. If either fails to start, report the error and **STOP** (do not skip).
 
-**Run E2E**
+**Run E2E (mandatory order)**
 
 > [!CAUTION]
 > **NEVER** use `npx playwright test` directly or pipe through `tail`/`head`.
 > Always use the project's npm script. Piping through `tail` buffers ALL output,
 > causing `command_status` to return empty and trapping agents in polling loops.
 
+1) **Auto-domain E2E gate (run first)**
+```bash
+npm run test:e2e:domain:auto
+```
+- **PASS criteria:** Exit code 0.
+- **FAIL:** List failing tests with names and error messages, output FAIL, and STOP.
+
+2) **Full coverage gate (run only if auto-domain passed)**
+- Preferred optimization: if auto-domain already passed for the current diff and no files changed since that pass, run only the remaining specs (complement set) instead of rerunning the auto-domain specs.
+```bash
+node scripts/e2e-domain-runner.mjs auto -- --list > /tmp/e2e_auto_list.txt
+rg -n "^  - tests/" /tmp/e2e_auto_list.txt | sed 's/^[0-9]*:  - //' | sort -u > /tmp/e2e_auto_selected.txt
+find tests -name "*.spec.ts" | sort > /tmp/e2e_all_specs.txt
+comm -23 /tmp/e2e_all_specs.txt /tmp/e2e_auto_selected.txt > /tmp/e2e_remaining_specs.txt
+npm run test:e2e -- $(tr '\n' ' ' < /tmp/e2e_remaining_specs.txt) --reporter=line
+```
+- Fallback: if auto-domain was not run/passed in this review cycle, or diff changed after auto-domain pass, run full suite:
 ```bash
 npm run test:e2e-all
 ```
-- **PASS criteria:** All tests pass (exit code 0).
+- Optional artifact mode (only when HTML report is explicitly needed):
+```bash
+npm run test:e2e-all:html
+```
+- **PASS criteria:** Full coverage passes (auto-domain + remaining set, or full suite) with exit code 0.
 - **FAIL:** List failing tests with names and error messages. This is a **blocking** gate — do NOT skip or continue.
 - **No SKIP option:** E2E tests are mandatory. If Playwright is not installed, report as FAIL and STOP.
 - **WAIT STRATEGY:** Use `command_status` with `WaitDurationSeconds=100` (never more than 100s). If still running, check output so far and re-wait — but never exceed 100s per call.
@@ -157,7 +184,10 @@ Output: [relevant output or "clean"]
 ```
 
 #### Gate behavior
-- If any gate is FAIL → STOP and list all failures.
+- If TypeScript fails and qualifies for 2.1 auto-fix, fix and rerun TypeScript before deciding.
+- In 2.4, if auto-domain E2E fails, STOP and do not run full E2E.
+- In 2.4, prefer complement-only run after auto-domain pass to avoid rerunning already-passed specs.
+- If any gate is FAIL after that → STOP and list all failures.
 - If all gates are PASS or SKIP → continue to Phase 3.
 
 ### Phase 3 — Summarize Uncommitted Changes
@@ -182,7 +212,8 @@ Create a concise summary from the diff.
 | TypeScript | PASS/FAIL/SKIP |
 | ESLint | PASS/FAIL/SKIP |
 | Unit Tests | PASS/FAIL/SKIP |
-| E2E Tests | PASS/FAIL/SKIP |
+| E2E Auto Domain | PASS/FAIL/SKIP |
+| E2E Remaining (Complement) | PASS/FAIL/SKIP |
 
 ### Phase 4 — Propose Commit Message
 

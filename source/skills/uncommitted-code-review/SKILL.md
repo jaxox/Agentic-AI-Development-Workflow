@@ -22,6 +22,7 @@ It must prioritize **root-cause, flow-level fixes** over band-aid patches.
 * `git status`
 * `git diff --staged`
 * `git diff`
+* **Reading existing (committed) files** to resolve questions about whether referenced code exists, whether interfaces match, or whether contract gaps are real. The diff is the review scope, but the existing codebase is valid investigation context.
 
 ### Explicitly Disallowed
 
@@ -32,7 +33,7 @@ It must prioritize **root-cause, flow-level fixes** over band-aid patches.
 * Speculative or "nice to have" redesigns
 * "Quick patch" guidance that does not address root cause
 
-If required context is missing, the skill may ask **at most one clarifying question** and must specify the exact file/lines needed.
+If required context is missing, the skill **must investigate** using existing codebase files before reporting. Never ask the user to confirm or verify something the agent can check itself.
 
 ---
 
@@ -118,6 +119,13 @@ If required context is missing, the skill may ask **at most one clarifying quest
 
     * If any `P0/P1` finding ID is still `open`, do not provide optimistic wording that implies near-merge readiness.
     * Keep root-cause/entrypoint closure language explicit: which path is still unclosed and why.
+
+17. **Investigate, don't ask**
+
+    * When a potential issue is identified in the diff (e.g., a new method call, a missing service wrapper, a contract mismatch), the reviewer **must** read the relevant existing files to determine whether the issue is real before reporting it.
+    * **Forbidden**: Findings that say "Verify X exists", "Confirm Y is present", or "If Z was added, this is fine" — the agent has access to the codebase and must look it up.
+    * Every finding must state the **definitive status**: either "X is missing and must be added" or "X already exists at [file:line] — no issue".
+    * If the agent cannot determine the status after reading existing files, it must state exactly what it checked, what it found, and why the determination is ambiguous — not punt the investigation to the user.
 
 ---
 
@@ -263,6 +271,14 @@ For each P0/P1 issue family, include:
 * Migration or backfill needs
 * Rollout considerations
 * Guardrail/contract enforcement risks (for example backend-sync proof drift)
+
+### 9.5 Q&A — Answers to User Questions
+
+* If the user asked any questions in review comments, inline annotations, or chat during the review, list each question and provide a clear, direct answer.
+* Format as: **Q:** (quoted question) → **A:** (answer)
+* If a question was already addressed by a fix, reference the fix ID (e.g., "Addressed by P2-1").
+* If a question requires investigation (e.g., "are we using Spring Boot 3?"), perform the investigation and state the factual answer.
+* This section is MANDATORY when user questions exist. Omit only if no questions were asked.
 
 ### 10. Merge Readiness Verdict
 

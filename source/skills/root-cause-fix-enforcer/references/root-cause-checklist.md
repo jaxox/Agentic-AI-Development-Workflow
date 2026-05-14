@@ -21,6 +21,8 @@ Use this checklist before marking work complete.
 - API/types/DTOs synchronized when payload behavior changes.
 - Frontend guards/state use the same authority as backend responses.
 - Fallback paths do not conflict with primary logic.
+- Persisted/shared-state fixes remain correct after reload, refetch, reconnect, or second-session read.
+- Optimistic or local-only state is treated as temporary UX only, not durable authority.
 
 ## D. Tests
 
@@ -28,6 +30,7 @@ Use this checklist before marking work complete.
 - At least one adjacent path test added/updated for shared root-cause class.
 - Test setup/teardown is deterministic; global listeners cleaned in `finally`.
 - Tests assert behaviorally important outcomes, not incidental implementation details.
+- Shared-state fixes include at least one backend re-read, refresh, reconnect, or second-session proof point.
 
 ## E. Validation
 
@@ -41,6 +44,7 @@ Use this checklist before marking work complete.
 - Entrypoint matrix is complete for all sibling paths in scope.
 - Every matrix row has a validation artifact (test/check/manual proof).
 - No path still relies on old/brittle behavior while primary path is fixed.
+- No path still relies on local-only authority where backend truth is required.
 - Final report explicitly marks each invariant as `closed` or `open`.
 - If any invariant is open, do not claim completion.
 

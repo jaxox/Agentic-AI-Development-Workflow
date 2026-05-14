@@ -1,0 +1,4 @@
+interface:
+  display_name: "Fast Local Pre-Commit"
+  short_description: "Targeted local fix-and-commit workflow"
+  default_prompt: "Use $fast-local-pre-commit to keep this change on a tight local loop with only touched tests and touched-domain verification."
