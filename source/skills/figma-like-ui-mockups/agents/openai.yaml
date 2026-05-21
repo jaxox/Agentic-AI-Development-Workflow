@@ -1,4 +1,4 @@
 interface:
   display_name: "Figma-Like UI Mockups"
-  short_description: "Grounded mockups from real app UI code"
-  default_prompt: "Use $figma-like-ui-mockups to create a mobile-first mockup grounded in the existing frontend."
+  short_description: "Grounded UI mockups and approved mockup locks"
+  default_prompt: "Use $figma-like-ui-mockups to create or lock a mobile-first mockup grounded in the existing frontend."

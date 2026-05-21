@@ -1,6 +1,6 @@
 ---
 name: uncommitted-code-review
-description: "Perform a **strict, deterministic code review** of **uncommitted Git changes only** (staged and unstaged)."
+description: "Perform a strict, deterministic review of uncommitted Git changes, including optional Plan Enforcer Mode for auditing diffs against approved plans, task checklists, mockup locks, and acceptance criteria. Use when reviewing staged/unstaged changes, blocking release drift, or verifying plan-locked task completion."
 metadata:
   short-description: "Perform a **strict, deterministic code review** of **uncommitted Git changes only** (staged and unstaged)."
 ---
@@ -13,6 +13,8 @@ Perform a **strict, deterministic code review** of **uncommitted Git changes onl
 The skill acts like a senior engineer blocking a release: it focuses on correctness, safety, performance, and test coverage — not style bikeshedding or speculative refactors.
 It must prioritize **root-cause, flow-level fixes** over band-aid patches.
 
+When invoked in **Plan Enforcer Mode**, also audit whether the diff implements the approved objective, task checklist, mockup locks, and acceptance criteria without drift.
+
 ---
 
 ## Scope & Inputs
@@ -22,6 +24,7 @@ It must prioritize **root-cause, flow-level fixes** over band-aid patches.
 * `git status`
 * `git diff --staged`
 * `git diff`
+* Approved plan, PRD, story packet, task checklist, execution ledger, mockup lock, or user-approved design artifact when Plan Enforcer Mode is requested.
 * **Reading existing (committed) files** to resolve questions about whether referenced code exists, whether interfaces match, or whether contract gaps are real. The diff is the review scope, but the existing codebase is valid investigation context.
 
 ### Explicitly Disallowed
@@ -127,6 +130,13 @@ If required context is missing, the skill **must investigate** using existing co
     * Every finding must state the **definitive status**: either "X is missing and must be added" or "X already exists at [file:line] — no issue".
     * If the agent cannot determine the status after reading existing files, it must state exactly what it checked, what it found, and why the determination is ambiguous — not punt the investigation to the user.
 
+18. **Plan Enforcer Mode is binding when requested**
+
+    * Compare changed behavior against the approved plan, task checklist, mockup lock, acceptance criteria, and explicit non-goals.
+    * Emit finding IDs as `PE-<TASK-ID>-<N>` when a task ID exists, otherwise `PE-GLOBAL-<N>`.
+    * Treat missing task evidence, mockup drift, unapproved UI, fake/local-only state, skipped tests, or unrelated batching as blocking unless the user explicitly accepted it.
+    * Do not code first. Report required fixes back to the implementer.
+
 ---
 
 ## Review Checklist
@@ -183,6 +193,19 @@ The skill MUST evaluate all applicable items below:
 * Flaky or brittle test patterns
 * Invariant-level tests missing for recurring issue families
 * Guardrail checks (when defined by repo rules) are missing from CI/local validation path
+
+### Plan Enforcer Checks
+
+Use this section only when Plan Enforcer Mode is requested:
+
+* Current task ID is present and matches the implemented scope.
+* Acceptance criteria are fully satisfied by code, tests, and evidence.
+* Approved mockup locks are followed for UI work.
+* Files changed are within task scope or explicitly justified.
+* Tests match the risk and touched layers.
+* Screenshot/browser proof exists for UI changes when required.
+* Known gaps are documented and not blockers.
+* No task is marked DONE without reviewer closure.
 
 ---
 
@@ -279,6 +302,17 @@ For each P0/P1 issue family, include:
 * If a question was already addressed by a fix, reference the fix ID (e.g., "Addressed by P2-1").
 * If a question requires investigation (e.g., "are we using Spring Boot 3?"), perform the investigation and state the factual answer.
 * This section is MANDATORY when user questions exist. Omit only if no questions were asked.
+
+### 9.7 Plan Enforcer Findings
+
+Include this section when Plan Enforcer Mode is requested:
+
+* Task ID reviewed.
+* Approved plan/mockup/ledger artifacts reviewed.
+* Blocking findings with `PE-*` IDs.
+* Non-blocking findings with rationale.
+* Evidence missing from the task ledger.
+* Verdict for the task: `DONE`, `REVIEW_BLOCKED`, or `BLOCKED`.
 
 ### 10. Merge Readiness Verdict
 

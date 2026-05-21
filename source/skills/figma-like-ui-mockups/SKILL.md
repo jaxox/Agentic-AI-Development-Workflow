@@ -1,6 +1,6 @@
 ---
 name: figma-like-ui-mockups
-description: Create high-quality, Figma-like HTML UI mockups grounded in the real current frontend app. Use when users ask for visual mockups, UI concepts, mobile flows, Figma-like previews, implementation-ready design artifacts, or design changes that must match an existing product instead of generic SaaS/startup UI.
+description: Create high-quality, Figma-like HTML UI mockups and approved mockup locks grounded in the real current frontend app. Use when users ask for visual mockups, UI concepts, mobile flows, Figma-like previews, implementation-ready design artifacts, approved UI source-of-truth records, or design changes that must match an existing product instead of generic SaaS/startup UI.
 ---
 
 # Figma-Like UI Mockups
@@ -139,11 +139,28 @@ When possible, open or render the HTML mockup and inspect it at mobile width fir
 - The design does not create a new page or navigation pattern unless explicitly required.
 - The mockup is implementable with existing frontend components.
 
-### 6. Final response requirements
+### 6. Lock approved mockups
+
+When the user approves a mockup or says to lock it in, create or update an approved mockup lock. The lock may be a section in the feature plan, execution ledger, or mockup artifact index. Keep it product-agnostic and specific to the approved UI, not to one feature type.
+
+The lock must include:
+
+- Approved artifact path and timestamp or approval note.
+- Production screens/components used as the canvas.
+- Approved states, viewports, and variants.
+- Required implementation surfaces.
+- Required screenshot or browser proof after implementation.
+- Explicit non-goals: text, controls, states, or layout ideas that should not be implemented yet.
+- Drift rule: implementation must match the approved mockup unless the user approves a revised lock.
+
+For UI implementation tasks, reference the lock from the task checklist and Plan Enforcer review.
+
+### 7. Final response requirements
 
 Return:
 
 - Mockup artifact path.
+- Approved mockup lock location when applicable.
 - Existing screens/components used as references, with real file paths.
 - Visual language extracted from the app.
 - What changed in the mockup.
@@ -159,6 +176,7 @@ Return:
 - [ ] A specialist UI/UX agent reviewed the interaction model, or the closest available specialist fallback was documented.
 - [ ] The closest existing page/modal/component was identified.
 - [ ] The mockup uses an existing product page, modal, sheet, or flow as its canvas.
+- [ ] Approved mockups are captured in a mockup lock before implementation when the user approves them.
 - [ ] Explanatory, critique, rationale, and implementation text stays outside the mocked app UI.
 - [ ] Product concepts are not mixed together, especially user role, workflow state, selection state, payment state, permission state, and inventory/capacity state.
 - [ ] The mockup is HTML/CSS, not a text-only wireframe.

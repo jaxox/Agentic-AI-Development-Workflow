@@ -1,4 +1,4 @@
 interface:
   display_name: "Root-Cause Fix Enforcer"
-  short_description: "Enforce backend-authoritative root-cause fixes"
-  default_prompt: "Apply AGENTS.md rules, trace the end-to-end flow, fix the highest-authority layer, and reject local-only or UI-only patches that fail after reload, refetch, or reconnect."
+  short_description: "Close root-cause and Plan Enforcer findings"
+  default_prompt: "Apply AGENTS.md rules, trace the end-to-end flow, close review or Plan Enforcer findings by stable ID, and reject local-only or UI-only patches that fail after reload, refetch, or reconnect."

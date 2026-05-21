@@ -1,6 +1,6 @@
 ---
 name: root-cause-fix-enforcer
-description: Enforce production-grade root-cause fixes instead of quick patches. Use when users report repeated regressions, ask to "fix properly," request adherence to AGENTS.md rules, or call out band-aids, fake data, temp state, or UI-only hacks. Apply to frontend, backend, API contract, and tests so fixes are flow-complete and durable.
+description: Enforce production-grade root-cause fixes instead of quick patches and close Plan Enforcer or review findings by stable ID. Use when users report repeated regressions, ask to "fix properly," request adherence to AGENTS.md rules, call out band-aids, fake data, temp state, UI-only hacks, or need blocking plan/mockup drift findings fixed across frontend, backend, API contract, and tests.
 ---
 
 # Root-Cause Fix Enforcer
@@ -63,24 +63,28 @@ When an issue recurs (for example auth/legal/RSVP loops), execute this protocol 
 
 ## Review-to-Fix Handshake (Required with Uncommitted Code Review)
 
-When this skill is used after `uncommitted-code-review`, treat review findings as a closure contract:
+When this skill is used after `uncommitted-code-review` or Plan Enforcer review, treat review findings as a closure contract:
 
 1. Build a findings ledger.
 - Copy each P0/P1/P2 item into a checklist with stable IDs (for example `P1-1`, `P2-1`).
+- Copy each Plan Enforcer item into the same checklist with stable `PE-*` IDs.
 - Map each ID to files, entrypoints, and planned validation.
 
 2. Implement by ledger ID, not by narrative.
 - Apply code/test changes that close each ID.
 - Mark each ID `open` or `closed` only after validation evidence exists.
+- Do not close a `PE-*` finding unless the implementation matches the approved plan/mockup/task checklist or the user explicitly accepted the deviation.
 
 3. Run closure review before finalizing.
 - Re-run uncommitted review or equivalent checks.
+- Re-run Plan Enforcer review when `PE-*` findings were involved.
 - If any previously open ID remains open, continue iterating.
 
 4. Escalate after 2 failed loops on same ID.
 - If the same ID reappears twice, pause and add:
   - one new guardrail/static check, or
   - one invariant regression test at a higher-authority layer.
+- For recurring `PE-*` drift, add or tighten the task ledger, mockup lock, or execution protocol so the drift is blocked before implementation proceeds.
 - Do not continue line-level patching without this escalation.
 
 ## Invariant + Entrypoint Matrix Template
@@ -138,6 +142,7 @@ Finding IDs covered:
 - Report root cause, changed files, and why the fix is durable.
 - Explicitly report invariant closure status for each entrypoint in scope.
 - Include findings ledger status (`open`/`closed`) for every input review ID.
+- Include Plan Enforcer ledger status (`open`/`closed`) for every `PE-*` finding.
 - Call out any remaining path that still depends on optimistic or local-only state.
 - For guarded collaborative-state fixes, include a short "proof of authority" note:
   - mutation owner

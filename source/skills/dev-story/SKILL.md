@@ -1,6 +1,6 @@
 ---
 name: dev-story
-description: "Implement a story in code with tests and a concise implementation report."
+description: "Implement exactly one approved story or task ID in code with tests, self-audit, reviewer closure, and a concise implementation report. Use for plan-locked sequential implementation where each task must map to acceptance criteria and evidence before it can be marked done."
 metadata:
   short-description: "Implement a story in code with tests and a concise implementation report."
 ---
@@ -8,10 +8,12 @@ metadata:
 # Skill: dev_story
 
 ## Purpose
-Implement a story in code with tests and a concise implementation report.
+Implement exactly one approved story or task ID in code with tests, self-audit, reviewer closure, and a concise implementation report.
 
 ## Inputs
 - `artifacts/stories/story-<slug>.md`
+- Approved `TASK-###` entry or equivalent task ID from an execution checklist
+- `artifacts/execution/<feature-or-fix-slug>/task-ledger.md` when present
 - Repository codebase and architecture references
 - `artifacts/prd.md` and `artifacts/architecture.md` if available
 - Product context: `context/products/<product>.md` (preferred) or `context/product.md` (fallback); use `templates/product-profile.md`
@@ -21,8 +23,13 @@ Implement a story in code with tests and a concise implementation report.
 - `artifacts/dev-story-report.md` (use `templates/dev-story-report.md`)
 
 ## Responsibilities
-- Implement the story per acceptance criteria and ADR guidance.
+- Restate the task ID, acceptance criteria, allowed scope, explicit non-goals, and required evidence before editing.
+- Implement only the assigned task. Do not batch unrelated UI, backend, data, test, or refactor work.
+- Implement the story or task per acceptance criteria, mockup locks, and ADR guidance.
 - Add or update tests and capture test logs per `docs/specs/test-logging.md`.
+- Self-audit the diff against the approved plan, task checklist, mockup locks, contracts, and source-of-truth rules.
+- Run or request Plan Enforcer review before marking the task complete.
+- Update the execution ledger whenever one exists; do not leave task evidence only in chat, a report, or commit notes.
 - Update sprint status to READY FOR REVIEW when applicable.
 - Document changes, tests, and risks in the report.
 - Set `Status.State` to NEEDS INPUT, BLOCKED, or DONE as appropriate.
@@ -30,10 +37,34 @@ Implement a story in code with tests and a concise implementation report.
 ## Forbidden
 - Shipping without tests or without explaining test gaps.
 - Introducing mock data in UI/services without an explicit boundary.
+- Marking a task DONE without code evidence, test evidence, self-audit, and reviewer closure.
+- Moving to another task while the current task has open blocking Plan Enforcer findings.
+
+## Plan-Locked Task Protocol
+
+For each task:
+
+1. Restate the task ID and acceptance criteria.
+2. Confirm implementation scope, excluded scope, and relevant approved mockup lock if UI is involved.
+3. Implement only that task.
+4. Run the smallest relevant tests that prove the task behavior.
+5. Self-audit against the approved plan, mockups, API/contracts, persistence authority, and known non-goals.
+6. Fix self-audit gaps.
+7. Send the diff to Plan Enforcer review.
+8. Fix blocking reviewer findings.
+9. Update the execution ledger with files changed, tests, UI proof when applicable, known gaps, and reviewer closure.
+10. Mark DONE only after evidence is present in the execution ledger when a ledger exists; otherwise use the implementation report.
+
+If the task is too large to satisfy this protocol cleanly, split it before implementation.
 
 ## Checklist
 - [ ] Review story and architecture inputs
+- [ ] Restate task ID, acceptance criteria, scope, non-goals, and evidence requirements
 - [ ] Implement code changes and tests
+- [ ] Run relevant tests and capture results
+- [ ] Self-audit against approved plan and mockups
+- [ ] Close Plan Enforcer findings or document accepted non-blockers
+- [ ] Update execution ledger when present
 - [ ] Populate `artifacts/dev-story-report.md` using the template
 - [ ] Attach test logs per spec
 - [ ] Set `Status.State`
