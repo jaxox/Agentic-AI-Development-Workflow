@@ -33,6 +33,8 @@ Use the shadcn MCP tools to explore the component catalog and Registry Directory
 
 ### 2. Component Installation
 
+Before installing or copying a shadcn/ui component into an existing project, search the project for a local shared component, wrapper, variant, hook, utility, token, and test that already covers the same job. Prefer extending, composing, or parameterizing existing project UI over introducing another component file. Install or copy a new shadcn component only when the existing codebase has a real gap, and document that gap.
+
 There are two approaches to adding components:
 
 **A. Direct Installation (Recommended)**
@@ -302,11 +304,12 @@ import {
 ## Validation and Quality
 
 Before committing components:
-1. **Type check**: Run `tsc --noEmit` to verify TypeScript
-2. **Lint**: Run your linter to catch style issues
-3. **Test accessibility**: Use tools like axe DevTools
-4. **Visual QA**: Test in light and dark modes
-5. **Responsive check**: Verify behavior at different breakpoints
+1. **Reuse audit**: Confirm the component does not duplicate existing project UI behavior.
+2. **Type check**: Run `tsc --noEmit` to verify TypeScript
+3. **Lint**: Run your linter to catch style issues
+4. **Test accessibility**: Use tools like axe DevTools
+5. **Visual QA**: Test in light and dark modes
+6. **Responsive check**: Verify behavior at different breakpoints
 
 ## Resources
 

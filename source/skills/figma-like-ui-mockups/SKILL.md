@@ -15,9 +15,11 @@ The default deliverable is an **existing-product screen mockup**, not a presenta
 
 Source-of-truth rule: **do not make up product surfaces, routes, modals, buttons, labels, state flows, or destinations**. If the real app already has a page, sheet, modal, card, dock, route, or notification flow for the requested job, use that exact surface as the reference canvas. A new page, new modal, or new interaction surface is allowed only when code inspection proves no existing surface fits, or when the user explicitly asks for a new surface.
 
+Reuse-first rule: if the existing product already has a component, control, validation pattern, formatting toolbar, expand/collapse behavior, empty/error state, or accessibility behavior that does the same job, the mockup should reuse or extend that pattern instead of introducing a duplicate. New components must be marked as new and justified by an actual gap.
+
 Do not mix explanatory planning copy into the mocked app UI. Explanations, labels, rationale, callouts, and implementation notes belong in the final response or outside the app frame, never inside the screen unless that text would really ship in the product.
 
-For existing-product UI-change mockups, a visible change-scope layer is a required part of the deliverable, not an optional enhancement. The artifact must make it obvious which exact UI regions are new, changed, verify-only/current behavior, removed, open questions, and reference-only context. A separate written explanation or top review panel is not enough.
+For existing-product UI-change mockups, a visible change-scope layer is a required part of the deliverable, not an optional enhancement. The artifact must make it obvious which exact UI regions are new, changed, verify-only/current behavior, removed, open questions, and reference-only context. The default scope treatment is: visual indicators may outline or subtly underlay the exact changed regions inside the app frame, and small reference ID badges may attach to those outlines; all explanatory comments/text/labels must live outside the app frame.
 
 ## Required Inputs
 
@@ -95,8 +97,15 @@ Before drawing or marking anything as a proposed change, compare the requested t
   - `Verify only`: current behavior is expected to remain, but should be explicitly checked.
   - `Change`: current behavior differs; show `old -> new` for labels, copy, values, controls, or state treatment.
   - `New`: the UI element or copy does not currently exist.
-  - `Remove`: the current UI element or copy should disappear.
+  - `Remove`: a real current production UI element or copy should disappear.
   - `Open question`: the implementation cannot be inferred safely from code or product semantics.
+- Never mark something as `Remove` when it only appeared in a previous mockup, draft, comment, or explanation. Prior mockup cleanup belongs in the outside-frame notes or final response, not in the product UI scope map.
+- For existing production surfaces such as a current modal, sheet, page, dock, or tab view, inspect and recreate the actual labels, tabs, button names, empty states, and layout before proposing changes. If the artifact cannot faithfully recreate that surface, mark the surrounding surface as `Verify only`/reference and mark only the exact proposed deltas.
+- Scope outlines must wrap the exact changed/new/removed element, not a whole list, menu, tab, card, or page unless that entire production surface is genuinely new or genuinely replaced.
+- If a new multi-tab surface is proposed, include separate frames for every tab shown in the tab control, or state outside the frame that the unshown tabs are out of scope. Do not show tabs whose contents are not mocked or intentionally deferred.
+- Do not model a stateful, ordered workflow as equal tabs. If the user task depends on ordered states, prerequisites, or a visibility boundary, use a stepper, wizard, run center, or explicit state frames instead. Show the before state, the single primary action for that state, and the after state caused by that action.
+- Do not duplicate a primary workflow action across multiple surfaces. If a button such as Generate, Publish, Submit, or Start appears in more than one frame, each occurrence must represent a distinct state or be explicitly marked outside the frame as repeated persistent chrome.
+- For workflows that affect player visibility, include the private/non-public state, the publish/confirm state, and the player-visible live state as separate frames.
 - Convert those notes into a change-scope map before finalizing the mockup:
   - Every `New`, `Change`, `Remove`, `Verify only`, and `Open question` item must map to a visible indicator on the relevant screen, sheet, modal, or frame.
   - `No UI change` items may be documented outside the app frame when no visual region needs protection.
@@ -170,39 +179,44 @@ The only exceptions are:
 
 If an exception applies, state it in the final response.
 
-The change-scope layer may live outside the app frame or as an obvious overlay on top of the app screenshot/frame. Overlay markers are allowed when they are clearly non-shipping review aids. They must never be confused with product UI components or copy that will ship.
+The explanatory change-scope layer must live outside the app frame by default, usually as a scope table/panel beside or below each screen. Visual indicators such as outlines or subtle underlays should appear inside the app frame to identify exact regions. A small reference ID badge such as `N1`, `C0`, `Q4`, or `V2` may be attached to the outline itself so reviewers can refer to the region. Do not place explanatory comments, prose labels, connector anchors, or callout boxes inside the phone/app/modal/screen frame unless the user explicitly requests a commented variant.
 
-Default to keeping explanatory annotation text outside the app, phone, modal, or screen frame. The mocked product UI must remain inspectable. Inside the app frame, use only non-blocking visual indicators such as outlines, underlays, low-opacity masks, connector anchors, or tiny marker IDs that do not cover readable content or controls. Put the explanatory `Change`, `New`, `Remove`, `Verify only`, and `Open question` copy in a legend or scope panel outside the frame and map it back to the visible indicators. If an annotation would block the UI at mobile width, move it outside the frame or provide a separate clean frame.
+Keep all explanatory annotation text outside the app, phone, modal, or screen frame. The mocked product UI must remain inspectable as a shipping-like screen with non-shipping visual outlines and small reference ID badges only. Put the explanatory `Change`, `New`, `Remove`, `Verify only`, and `Open question` copy in a scope panel outside the frame and map it back by stable frame names, reference IDs, and human-readable element references, such as `N1 | Frame 1B: Event Mode select` or `N2b | Round Robin Setup modal: Score entry row`.
+
+If a visible in-frame mapping is genuinely necessary for a complex review, provide two artifacts or two side-by-side variants:
+
+- **Outlined approval frame**: exact changed regions have outlines/underlays and small reference ID badges attached to the outlines, with all explanations outside the app frame. This is the default implementation reference.
+- **Commented review frame**: optional, only when explicitly requested by the user, and clearly labeled non-shipping; may include prose callouts.
 
 The annotation layer must make approval scope unambiguous:
 
 - Mark exact proposed changes separately from verify-only/current behavior.
-- Include a visible legend near the mockup, using a convention such as:
-  - Solid highlight: actual proposed UI/code change.
-  - Dashed highlight: verify-only/current behavior to protect, not change.
-  - No highlight: reference-only context, not approved implementation scope.
-- Every highlighted area must say whether it is `No UI change`, `Verify only`, `Change`, `New`, `Remove`, or `Open question`.
+- Include a visible scope table near the clean mockup, using rows such as `Change`, `New`, `Remove`, `Verify only`, `Open question`, and `Reference only`.
+- Every changed/new/removed/verify/open item must identify the exact frame and product element using words already visible in the UI or stable component names.
 - For `Change`, include the current value and proposed value, for example `Reserved for waitlist -> Full`.
 - For `New`, state that the element does not exist today.
 - For `Remove`, state what existing copy/control/state disappears.
-- Do not use highlights to mean "important" or "related to the logic." Use highlights only to clarify implementation scope.
+- Do not use in-frame outlines/underlays to mean "important" or "related to the logic"; use them only to identify exact implementation scope.
 - If buttons, icons, headers, avatars, images, or unrelated rows are approximate reference context, state that they are not locked by the mockup.
-- The changed areas should be visually and textually precise enough for implementation. Reference-only areas may be approximate, but must not imply approval.
-- Explanatory annotation text must not block the actual UI. Keep the UI readable first, especially in mobile phone frames.
+- The scope table should be textually precise enough for implementation. Reference-only areas may be approximate, but must not imply approval.
+- Explanatory annotation text must not appear inside or block the actual UI. In-frame outlines/underlays and small reference ID badges must keep the UI readable first, especially in mobile phone frames.
 
-Hard requirement: at least one actual changed/new/removed UI region must be visibly marked in the mockup for each proposed UI-change state. A review panel, written notes, or lock document without visible indicators on the relevant UI is incomplete.
+Hard requirement: each proposed UI-change state must include app-frame visual scope indicators with reference ID badges plus an adjacent/outside-frame scope table that maps those IDs to exact frame/element names. The product UI must never contain explanatory comments or prose labels inside the phone frame.
 
 Good scope indicator examples:
 
-- A solid outline around a newly added menu item labeled `New: Clone Event action`.
-- A solid outline around a changed header labeled `Change: Create Event -> Clone Event`.
-- A dashed outline around copied payment settings labeled `Verify only: copied payment settings`.
-- An outside-frame note that unmarked surrounding headers, avatars, and content are reference context only.
+- A scope row outside the phone: `New | Frame 1: Event Mode select | Adds CustomSelect below Match Type`.
+- A scope row outside the phone: `Change | Frame 1: Match Type select | Play Format -> Match Type; control unchanged`.
+- A scope row outside the phone: `Verify only | Frame 2: Capacity | Split lines remain RSVP pools`.
+- A cyan outline around the Event Mode select inside the phone, with a small `N1` badge attached to the outline and the explanatory text outside the phone.
+- An outside-frame note that surrounding headers, avatars, and content are reference context only.
 
 Bad scope indicator examples:
 
-- A top panel that says "New: add clone action" while the menu item itself is unmarked.
-- Highlighting an entire screen when only one button changes.
+- Putting prose comments such as `New: Event Mode select`, `Open: decide MVP`, or implementation notes inside the app/phone/modal frame.
+- Drawing connector anchors or comment pins around product UI in the default approval frame.
+- Putting explanatory text labels inside the product UI, even if they are styled as non-shipping annotations.
+- A top panel that says "New: add clone action" without identifying the exact frame and UI element in a scope row.
 - Putting `New`, `Change`, `Verify only`, or implementation notes inside the product UI as if they were shipping labels.
 - Marking existing surrounding chrome as changed just because it is relevant to the story.
 
@@ -215,9 +229,10 @@ When possible, open or render the HTML mockup and inspect it at mobile width fir
 - The layout fits the existing app style.
 - The design does not create a new page or navigation pattern unless explicitly required.
 - The mockup is implementable with existing frontend components.
-- For existing-product UI changes, the change-scope legend and all required indicators are visible in the screenshots.
-- The first mobile screenshot makes the actual changed/new UI regions clear without relying on the final response.
-- Annotation text does not cover or obscure the app UI. Any explanatory callouts are outside the app frame, or a separate clean frame is provided.
+- Any new component/control is justified by a real gap; duplicated behavior is refactored back toward a shared component.
+- For existing-product UI changes, app-frame visual indicators and the outside-frame scope table are both visible in the screenshots.
+- The first mobile screenshot makes the actual changed/new UI regions understandable through in-frame outlines/underlays with reference ID badges plus adjacent scope rows, without relying on the final response.
+- Annotation text does not appear inside, cover, or obscure the app UI. Explanatory labels, comment pins, connector anchors, and callout boxes are absent unless the user explicitly requested a commented variant.
 
 ### 6. Lock approved mockups
 
@@ -260,15 +275,16 @@ Return:
 - [ ] Appropriate UI/UX skills were used before mockup creation.
 - [ ] A specialist UI/UX agent reviewed the interaction model, or the closest available specialist fallback was documented.
 - [ ] The closest existing page/modal/component was identified.
+- [ ] Existing components and interaction patterns were reused or explicitly ruled out with a reason.
 - [ ] Current implementation and relevant tests were compared against the proposal before drawing or marking changes.
 - [ ] States that already match current behavior are labeled as no-change or verify-only, not proposed changes.
 - [ ] Actual changes include old -> new values, or are clearly labeled as new/remove.
-- [ ] For existing-product UI changes, a visible change-scope layer is present in the mockup artifact, not only in the final response or lock document.
-- [ ] Every `New`, `Change`, `Remove`, `Verify only`, and `Open question` item that maps to UI is visibly marked on the relevant screen, sheet, modal, or frame.
-- [ ] The artifact includes a legend explaining solid, dashed, and unmarked areas.
+- [ ] For existing-product UI changes, visual scope indicators are present in the app frame and a scope table/panel is present outside the app frames in the mockup artifact, not only in the final response or lock document.
+- [ ] Every `New`, `Change`, `Remove`, `Verify only`, and `Open question` item that maps to UI identifies the relevant frame and product element in an outside-frame scope row.
+- [ ] The artifact keeps app/phone/modal frames free of explanatory comments, prose labels, connector anchors, and callouts unless explicitly requested; small reference ID badges may attach to outlines.
 - [ ] Different personas, permissions, payment states, inventory states, and lifecycle states are split into separate frames when they would see different UI.
-- [ ] Non-shipping annotation overlays are clearly marked as approval/scope aids and cannot be confused with shipping product UI.
-- [ ] Explanatory annotation text is outside the app/phone/screen frame, or a clean duplicate frame is provided; in-frame indicators do not block readable UI content.
+- [ ] Any optional commented variant is clearly separated from the outlined approval frame and marked non-shipping.
+- [ ] Explanatory annotation text is outside the app/phone/screen frame; the app frames contain only UI plus textless visual scope indicators.
 - [ ] The mockup uses an existing product page, modal, sheet, or flow as its canvas.
 - [ ] Approved mockups are captured in a mockup lock before implementation when the user approves them.
 - [ ] Explanatory, critique, rationale, and implementation text stays outside the mocked app UI.
@@ -300,7 +316,8 @@ Never do these:
 - Mix review notes, rationale, callouts, or critique labels into the app UI itself.
 - Mark existing UI as a proposed change just because it is relevant to the feature.
 - Omit old -> new copy/value/control details for actual changes.
-- Rely on a review panel, lock document, or final response to describe scope without visibly marking the changed UI region in the mockup.
+- Rely on a final response alone to describe scope without an outside-frame scope table/panel in the mockup artifact.
+- Put explanatory comments, prose labels, connector anchors, or callout boxes inside the product UI.
 - Put explanatory annotation text or callout boxes over the product UI in a way that blocks users from inspecting the actual screen.
 - Treat the change-scope layer as optional for an existing-product UI-change mockup.
 - Combine multiple personas or workflow states into one frame in a way that makes the UI state ambiguous.

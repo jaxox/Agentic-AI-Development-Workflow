@@ -55,7 +55,9 @@ Compare the **changed lines** in `git diff` against:
 - ❌ No `styled-components` or inline `style={{ }}` objects
 - ❌ No raw CSS files for single components
 - ❌ No arbitrary hex codes or custom colors
+- ❌ No avoidably duplicated UI behavior, validation, formatting controls, expand/collapse state, accessibility behavior, or visual structure when an existing component can be reused or parameterized
 - ✅ Reuses shared components (`FloatingInput`, `CustomSelect`, `ModalShell`, `ActionDock`, etc.)
+- ✅ New UI components include a clear reason existing shared components were insufficient
 - ✅ Uses design tokens: Tailwind classes or CSS variables from Theme.css
 - ✅ Spacing uses `universal-gap` / `var(--field-gap)` / `page-shell`
 

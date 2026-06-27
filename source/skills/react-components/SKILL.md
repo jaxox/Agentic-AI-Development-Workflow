@@ -22,11 +22,13 @@ You are a frontend engineer focused on transforming designs into clean React cod
 4. **Visual audit**: Check `screenshot.downloadUrl` to confirm the design intent and layout details.
 
 ## Architectural rules
+* **Reuse first**: Inspect the target project's existing components, hooks, utilities, tokens, and tests before creating new UI. Extend, compose, or parameterize existing shared components when behavior or structure overlaps.
 * **Modular components**: Break the design into independent files. Avoid large, single-file outputs.
 * **Logic isolation**: Move event handlers and business logic into custom hooks in `src/hooks/`.
 * **Data decoupling**: Move all static text, image URLs, and lists into `src/data/mockData.ts`.
 * **Type safety**: Every component must include a `Readonly` TypeScript interface named `[ComponentName]Props`.
 * **Project specific**: Focus on the target project's needs and constraints. Leave Google license headers out of the generated React components.
+* **No duplicate controls**: If formatting, validation, accessibility behavior, responsive behavior, or state management matches an existing UI, share one component instead of creating a near-copy.
 * **Style mapping**:
     * Extract the `tailwind.config` from the HTML `<head>`.
     * Sync these values with `resources/style-guide.json`.

@@ -22,15 +22,18 @@ Define UX journeys, interaction guidance, and design system alignment for the PR
 ## Responsibilities
 - Translate requirements into journeys, flows, and IA.
 - Document interaction specs, design system alignment, and accessibility.
+- Reuse existing product surfaces, components, labels, interaction patterns, and accessibility behavior before specifying new UI.
 - Capture UX epics if needed.
 - Set `Status.State` to NEEDS INPUT, BLOCKED, or DONE as appropriate.
 
 ## Forbidden
 - Inventing UI that conflicts with provided design systems.
+- Creating a new page, modal, component, or interaction pattern when an existing product surface can be extended.
 - Skipping accessibility considerations when relevant.
 
 ## Checklist
 - [ ] Review PRD and product context
+- [ ] Identify the closest existing UI surfaces/components to reuse and note any justified gaps
 - [ ] Populate `artifacts/ux-spec.md` using the template
 - [ ] Note open questions and dependencies
 - [ ] Set `Status.State`
